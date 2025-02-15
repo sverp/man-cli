@@ -32,7 +32,6 @@ get_chapter(){
     chapter_list=$(echo "$chapter_html" | tr -d '\n' | grep -oP '<a[^>]*class="chapter-name text-nowrap"[^>]*>([^<]+)</a>')
     chapter_title=$(echo "$chapter_list" | sed -n 's/.*<a[^>]*>\(.*\)<\/a>.*/\1/p')
    
-    #echo $chapter_title
     CHOICE=$(printf "%s" "$chapter_title" | fzf)
     if [ -n "$CHOICE" ]; then
 	    echo $CHOICE
@@ -51,7 +50,7 @@ get_manga(){
 
     CHOICE=$(printf "%s\n" "$manga_title" | fzf)
     if [ -n "$CHOICE" ]; then
-        manga=$(echo "$manga_list" | grep -oP '<a[^>]*class="a-h text-nowrap item-title"[^>]*>\s*\Q'"$CHOICE"'\E\s*</a>')
+	manga=$(echo "$manga_list" | grep -oP '<a[^>]*class="a-h text-nowrap item-title"[^>]*title="'"$CHOICE"'"[^>]*>.*?</a>')
         manga_link=$(echo "$manga"| sed -n 's/.*href="\([^"]*\)".*/\1/p')
         get_chapter $manga_link
     else
