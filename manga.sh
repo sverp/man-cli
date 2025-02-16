@@ -3,29 +3,63 @@
 $manga_link
 
 get_images(){
-	img_html=$(curl -s "$1")
-    img_url=$(echo "$img_html"| tr -d '\n' | grep -oP '<img class="reader-content"[^>]*src="\K[^"]+')
-    echo $img_url | python display.py
+    img_html=$(curl -s "$1")
+    img_urls=$(echo "$img_html"| tr -d '\n' | grep -oP '<img class="reader-content"[^>]*src="\K[^"]+')
+    if [ -z "$img_urls" ]; then
+        echo "No images found."
+        return
+    fi
 
-    echo "Choose option"
-    echo "1. Search"
-    echo "2. Back to chapter list"
-    echo "3. Exit"
-    read -r choice
+    i=1
+    total=$(echo "$img_urls" | wc -l)
+    img_url=$(echo "$img_urls" | sed -n "${i}p")
+    echo "$img_url" | python display.py
 
-    case $choice in
-        1) 
-            read -p "Enter title: " title
-            get_manga $title
-        ;;
-        2) 
-            get_chapter $manga_link
-        ;;
-        3) break;;
-    esac
+    while true; do
+	echo "$i/$total page"
+        echo "1.Previous 2.Next 3.Search 4.Back to chapter list 5.Exit"
+        read -r choice
 
+        case "$choice" in
+            1)
+                if [ "$i" -gt 1 ]; then
+                    i=$((i - 1))
+		    clear
+                    img_url=$(echo "$img_urls" | sed -n "${i}p")
+                    echo "$img_url" | python display.py
+                else
+                    echo "Already at the first image."
+                fi
+                ;;
+            2)
+                if [ "$i" -lt "$total" ]; then
+                    i=$((i + 1))
+		    clear
+                    img_url=$(echo "$img_urls" | sed -n "${i}p")
+                    echo "$img_url" | python display.py
+                else
+                    echo "Already at the last image."
+                fi
+                ;;
+            3)
+                echo "Enter title: "
+                read -r title
+                get_manga "$title"
+                return
+                ;;
+            4)
+                get_chapter "$manga_link"
+                return
+                ;;
+            5)
+                break
+                ;;
+            *)
+                echo "Invalid option. Please try again."
+                ;;
+        esac
+    done
 }
-
 
 get_chapter(){
     chapter_html=$(curl -s "$1")
@@ -71,11 +105,3 @@ case $opt in
     ;;
     "2") break;;
 esac
-
-
-#while true; do
-#    printf "enter options " 
-#    read -r title    
-#    [ "$cmd" = "exit" ] && break  
-#    get_manga $title
-#done
