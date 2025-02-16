@@ -1,5 +1,5 @@
 # man-cli
-
+[![running]](https://www.youtube.com/embed/6ha5HEzsR9M?si=cxgVDgU5_0T7PzJP")
 **python libraries required** - [pillow](https://pypi.org/project/pillow/), [numpy](https://pypi.org/project/numpy/), [requests](https://pypi.org/project/requests/)
 
 **how to run**
